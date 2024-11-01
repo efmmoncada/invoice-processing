@@ -1,0 +1,50 @@
+type AccountInfo = {
+  loc: string;
+  poNumber: string;
+  accountCode: string;
+};
+
+export const accounts: Record<number, AccountInfo> = {
+  1211202: { loc: "ADMIN BLDG", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1668905: { loc: "ATFALATI", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1211137: { loc: "BROOKWOOD", poNumber: "24000826", accountCode: "100.2540.0412.122.000.000" },
+  1211230: { loc: "BROWN", poNumber: "24000826", accountCode: "100.2540.0412.506.000.000" },
+  1211148: { loc: "BUTTERNUT", poNumber: "24000826", accountCode: "100.2540.0412.125.000.000" },
+  1211186: { loc: "CENTURY", poNumber: "24000826", accountCode: "100.2540.0412.610.000.000" },
+  1211203: { loc: "CTS/Peter Boscow", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1211159: { loc: "EASTWOOD", poNumber: "24000826", accountCode: "100.2540.0412.160.000.000" },
+  1211241: { loc: "EVERGREEN", poNumber: "24000826", accountCode: "100.2540.0412.508.000.000" },
+  1211170: { loc: "FARMINGTON VIEW", poNumber: "24000826", accountCode: "100.2540.0412.164.000.000" },
+  1211180: { loc: "FREE ORCHARDS", poNumber: "24000826", accountCode: "100.2540.0412.247.000.000" },
+  1211197: { loc: "GLENCOE", poNumber: "24000826", accountCode: "100.2540.0412.612.000.000" },
+  1211181: { loc: "GRONER", poNumber: "24000826", accountCode: "100.2540.0412.182.000.000" },
+  1211207: { loc: "HARE FIELD", poNumber: "24000826", accountCode: "100.2540.0412.35.000.000" },
+  1211208: { loc: "HILLSBORO", poNumber: "24000826", accountCode: "100.2540.0412.620.000.000" },
+  1211182: { loc: "IMLAY", poNumber: "24000826", accountCode: "100.2540.0412.123.000.000" },
+  1211183: { loc: "INDIAN HILL", poNumber: "24000826", accountCode: "100.2540.0412.132.000.000" },
+  1211184: { loc: "JACKSON", poNumber: "24000826", accountCode: "100.2540.0412.172.000.000" },
+  1211185: { loc: "LADD ACRES", poNumber: "24000826", accountCode: "100.2540.0412.239.000.000" },
+  1211187: { loc: "LENOX", poNumber: "24000826", accountCode: "100.2540.0412.186.000.000" },
+  1211219: { loc: "LIBERTY", poNumber: "24000826", accountCode: "100.2540.0412.614.000.000" },
+  1211188: { loc: "LINCOLN STREET", poNumber: "24000826", accountCode: "100.2540.0412.152.000.000" },
+  1211206: { loc: "MEC EAST/CTS HOU", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1211190: { loc: "MINTER BRIDGE", poNumber: "24000826", accountCode: "100.2540.0412.208.000.000" },
+  1211191: { loc: "MOOBERRY", poNumber: "24000826", accountCode: "100.2540.0412.213.000.000" },
+  1211192: { loc: "NORTH PLAINS", poNumber: "24000826", accountCode: "100.2540.0412.216.000.000" },
+  1211205: { loc: "OAK STREET", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1211193: { loc: "ORENCO", poNumber: "24000826", accountCode: "100.2540.0412.218.000.000" },
+  1211194: { loc: "PATTERSON", poNumber: "24000826", accountCode: "100.2540.0412.146.000.000" },
+  1211252: { loc: "POYNTER", poNumber: "24000826", accountCode: "100.2540.0412.512.000.000" },
+  1211195: { loc: "QUATAMA", poNumber: "24000826", accountCode: "100.2540.0412.195.000.000" },
+  1211323: { loc: "REEDVILLE", poNumber: "24000826", accountCode: "100.2540.0412.140.000.000" },
+  1211196: { loc: "ROSEDALE", poNumber: "24000826", accountCode: "100.2540.0412.272.000.000" },
+  1211263: { loc: "SOUTH MEADOWS", poNumber: "24000826", accountCode: "100.2540.0412.514.000.000" },
+  1843630: { loc: "TAMARACK", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1211198: { loc: "TOBIAS", poNumber: "24000826", accountCode: "100.2540.0412.175.000.000" },
+  1211209: { loc: "TRANSPORTATION", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1308527: { loc: "TSSF", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1211189: { loc: "W VERNE MCKINNEY", poNumber: "24000826", accountCode: "100.2540.0412.190.000.000" },
+  1211199: { loc: "WEST UNION", poNumber: "24000826", accountCode: "100.2540.0412.258.000.000" },
+  1211200: { loc: "WITCH HAZEL", poNumber: "24000826", accountCode: "100.2540.0412.264.000.000" },
+  1211201: { loc: "WL HENRY", poNumber: "24000826", accountCode: "100.2540.0412.253.000.000" }
+};
