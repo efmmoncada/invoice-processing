@@ -11,18 +11,27 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const App = () => {
 
-  const resultingPDF = useRef<PDFDocument>();
+  const [workingPdf, setWorkingPdf] = useState<string>()
+  const inputPdf = useRef<PDFDocument>();
+  const outputPdf = useRef<PDFDocument>();
+  const [pagesPresent, setPagesPresent] = useState(false);
   const [processed, setProcessed] = useState(false);
 
 
   useEffect(() => {
     (async () => {
-      resultingPDF.current = await PDFDocument.create();
+      inputPdf.current = await PDFDocument.create();
+      outputPdf.current = await PDFDocument.create();
     })()
   }, [])
 
+  useEffect(() => {
+    if (inputPdf.current?.getPageCount() || 0 > 0) setPagesPresent(true);
+    else setPagesPresent(false);
+  }, [inputPdf.current?.getPageCount()])
+
   const onDownload = useCallback(async () => {
-    const stampedPDF = await resultingPDF.current?.save();
+    const stampedPDF = await outputPdf.current?.save();
 
     if (!stampedPDF) return;
 
@@ -49,51 +58,70 @@ const App = () => {
       reader.onload = async (e) => {
         const uri = e.target?.result as string;
 
+        const srcDoc = await PDFDocument.load(uri);
+        const copiedPages = await inputPdf.current?.copyPages(srcDoc, srcDoc.getPageIndices());
 
-
-        const bstring = atob(uri.split(',')[1]);
-        const bytes = new Uint8Array(bstring.length);
-        for (let i = 0; i < bstring.length; i++) {
-          bytes[i] = bstring.charCodeAt(i);
+        for (const p of copiedPages || []) {
+          inputPdf.current?.addPage(p);
         }
 
-        const doc = await pdfjs.getDocument({ data: bytes }).promise;
-        for (let i = 0; i < doc.numPages; i++) {
-          const page = await doc.getPage(i + 1);
-          const textContent = await page.getTextContent();
-
-          const text = textContent.items.map((item) => (item as any).str).join(" ");
-          const accountNum = Number(text.match(/(?<=ACCOUNT NUMBER) *\d+/)?.toString().trim());
-
-          const { loc, poNumber, accountCode } = accounts[accountNum];
-
-
-          const pdfDoc = await PDFDocument.load(uri);
-          const pages = pdfDoc.getPages();
-
-          for (const p of pages) {
-            const { width, height } = p.getSize();
-
-            p.drawText(`${loc}\nPO #${poNumber}\nAcct: ${accountCode}`, {
-              x: 0.4 * width,
-              y: 0.97 * height,
-              size: 20,
-              color: rgb(1, 0, 0),
-            });
-          }
-          const copiedPages = await resultingPDF.current?.copyPages(pdfDoc, pdfDoc.getPageIndices());
-          if (!copiedPages) return;
-
-          for (const p of copiedPages) {
-            resultingPDF.current?.addPage(p);
-          }
-        }
-        setProcessed(true);
+        const currUri = await inputPdf.current?.saveAsBase64({ dataUri: true })
+        setWorkingPdf(currUri);
       }
 
       reader.readAsDataURL(file)
     }
   }, []);
+
+
+  const processFiles = useCallback(async () => {
+    const correspondingAcctNumbers = [];
+
+    const uri = await inputPdf.current?.saveAsBase64({ dataUri: true });
+    const bstring = atob(uri?.split(',')[1] || "");
+    const bytes = new Uint8Array(bstring.length);
+    for (let i = 0; i < bstring.length; i++) {
+      bytes[i] = bstring.charCodeAt(i);
+    }
+
+    const doc = await pdfjs.getDocument({ data: bytes }).promise;
+    for (let i = 0; i < doc.numPages; i++) {
+      const page = await doc.getPage(i + 1);
+      const textContent = await page.getTextContent();
+
+      const text = textContent.items.map((item) => (item as any).str).join(" ");
+      const accountNum = Number(text.match(/(?<=ACCOUNT NUMBER) *\d+/)?.toString().trim());
+
+      correspondingAcctNumbers.push(accountNum);
+    }
+
+    const pdfDoc = await PDFDocument.load(uri || "");
+    const pages = pdfDoc.getPages();
+
+    for (let i = 0; i < pages.length; i++) {
+
+      const { loc, poNumber, accountCode } = accounts[correspondingAcctNumbers[i]];
+
+      const { width, height } = pages[i].getSize();
+
+      pages[i].drawText(`${loc}\nPO #${poNumber}\nAcct: ${accountCode}`, {
+        x: 0.4 * width,
+        y: 0.97 * height,
+        size: 20,
+        color: rgb(1, 0, 0),
+      });
+    }
+
+    const copiedPages = await outputPdf.current?.copyPages(pdfDoc, pdfDoc.getPageIndices());
+    if (!copiedPages) return;
+
+    for (const p of copiedPages) {
+      outputPdf.current?.addPage(p);
+    }
+
+    setProcessed(true);
+  }, []);
+
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop, accept: {
@@ -103,14 +131,16 @@ const App = () => {
 
   return (
     <div className="flex flex-col gap-8 justify-center items-center h-screen w-screen">
+      <iframe className="h-4/5 w-full" src={workingPdf} />
       <div {...getRootProps({
-        className: "border-4 rounded-lg  border-gray-400 border-dashed h-96 aspect-square text-3xl flex justfify-center items-center text-center"
+        className: "border-4 rounded-lg border-gray-400 border-dashed w-4/5 h-40 text-3xl flex justfify-center items-center text-center"
       })}>
         <input {...getInputProps()} />
         {isDragActive ?
           <p>Drop the files here...</p> :
           <p>Drag and drop some files here, or click to select files</p>}
       </div>
+      <button disabled={!pagesPresent} className="rounded text-white bg-black hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black p-4 " onClick={processFiles}>Process</button>
       <button disabled={!processed} className="rounded text-white bg-black hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black p-4 " onClick={onDownload}>Download Coded PDF</button>
     </div>
 
