@@ -11,7 +11,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const App = () => {
 
-  const resultingPDF = useRef<PDFDocument>()
+  const resultingPDF = useRef<PDFDocument>();
+  const [processed, setProcessed] = useState(false);
+
 
   useEffect(() => {
     (async () => {
@@ -86,6 +88,7 @@ const App = () => {
             resultingPDF.current?.addPage(p);
           }
         }
+        setProcessed(true);
       }
 
       reader.readAsDataURL(file)
@@ -101,14 +104,14 @@ const App = () => {
   return (
     <div className="flex flex-col gap-8 justify-center items-center h-screen w-screen">
       <div {...getRootProps({
-        className: "border-4 rounded-lg  border-gray-400 border-dashed h-96 aspect-square text-4xl"
+        className: "border-4 rounded-lg  border-gray-400 border-dashed h-96 aspect-square text-3xl flex justfify-center items-center text-center"
       })}>
         <input {...getInputProps()} />
         {isDragActive ?
           <p>Drop the files here...</p> :
-          <p className="">Drag and drop some files here, or click to select files</p>}
+          <p>Drag and drop some files here, or click to select files</p>}
       </div>
-      <button onClick={onDownload}>Download Coded PDF</button>
+      <button disabled={!processed} className="rounded text-white bg-black hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black p-4 " onClick={onDownload}>Download Coded PDF</button>
     </div>
 
   );
