@@ -5,7 +5,7 @@ type AccountInfo = {
 };
 
 export const accounts: Record<number, AccountInfo> = {
-  1211202: { loc: "ADMIN BLDG", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
+  1211202: { loc: "ADMIN BLDG", poNumber: "24000826", accountCode: "100.2540.0412.001.000.000" },
   1668905: { loc: "ATFALATI", poNumber: "24000826", accountCode: "100.2540.0412.0.000.000" },
   1211137: { loc: "BROOKWOOD", poNumber: "24000826", accountCode: "100.2540.0412.122.000.000" },
   1211230: { loc: "BROWN", poNumber: "24000826", accountCode: "100.2540.0412.506.000.000" },
@@ -18,8 +18,8 @@ export const accounts: Record<number, AccountInfo> = {
   1211180: { loc: "FREE ORCHARDS", poNumber: "24000826", accountCode: "100.2540.0412.247.000.000" },
   1211197: { loc: "GLENCOE", poNumber: "24000826", accountCode: "100.2540.0412.612.000.000" },
   1211181: { loc: "GRONER", poNumber: "24000826", accountCode: "100.2540.0412.182.000.000" },
-  1211207: { loc: "HARE FIELD", poNumber: "24000826", accountCode: "100.2540.0412.35.000.000" },
-  1211208: { loc: "HILLSBORO", poNumber: "24000826", accountCode: "100.2540.0412.620.000.000" },
+  1211207: { loc: "HARE FIELD", poNumber: "24000826", accountCode: "100.2540.0412.035.000.000" },
+  1211208: { loc: "HILHI", poNumber: "24000826", accountCode: "100.2540.0412.620.000.000" },
   1211182: { loc: "IMLAY", poNumber: "24000826", accountCode: "100.2540.0412.123.000.000" },
   1211183: { loc: "INDIAN HILL", poNumber: "24000826", accountCode: "100.2540.0412.132.000.000" },
   1211184: { loc: "JACKSON", poNumber: "24000826", accountCode: "100.2540.0412.172.000.000" },
@@ -46,5 +46,6 @@ export const accounts: Record<number, AccountInfo> = {
   1211189: { loc: "W VERNE MCKINNEY", poNumber: "24000826", accountCode: "100.2540.0412.190.000.000" },
   1211199: { loc: "WEST UNION", poNumber: "24000826", accountCode: "100.2540.0412.258.000.000" },
   1211200: { loc: "WITCH HAZEL", poNumber: "24000826", accountCode: "100.2540.0412.264.000.000" },
-  1211201: { loc: "WL HENRY", poNumber: "24000826", accountCode: "100.2540.0412.253.000.000" }
+  1211201: { loc: "WL HENRY", poNumber: "24000826", accountCode: "100.2540.0412.253.000.000" },
+  1087504: { loc: "REPAIR & MAINTENANCE", poNumber: "24000658", accountCode: "100.2540.0322.006.000.000"}
 };
