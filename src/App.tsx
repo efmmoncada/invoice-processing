@@ -1,55 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import * as pdfjs from 'pdfjs-dist'
-import { accounts } from "./accounts";
-import { PDFDocument, rgb } from "pdf-lib";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import * as pdfjs from 'pdfjs-dist';
+import { accounts } from './accounts';
+import { PDFDocument, rgb } from 'pdf-lib';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url
-).toString()
+  import.meta.url,
+).toString();
 
 const App = () => {
-
-  const [workingPdf, setWorkingPdf] = useState<string>()
+  const [workingPdf, setWorkingPdf] = useState<string>();
   const inputPdf = useRef<PDFDocument>();
   const outputPdf = useRef<PDFDocument>();
   const [pagesPresent, setPagesPresent] = useState(false);
   const [processed, setProcessed] = useState(false);
 
-
   useEffect(() => {
     (async () => {
       inputPdf.current = await PDFDocument.create();
       outputPdf.current = await PDFDocument.create();
-    })()
-  }, [])
+    })();
+  }, []);
 
   useEffect(() => {
     if (inputPdf.current?.getPageCount() || 0 > 0) setPagesPresent(true);
     else setPagesPresent(false);
-  }, [inputPdf.current?.getPageCount()])
+  }, [inputPdf.current?.getPageCount()]);
 
   const onDownload = useCallback(async () => {
     const stampedPDF = await outputPdf.current?.save();
 
     if (!stampedPDF) return;
 
-    const blob = new Blob([stampedPDF], { type: "application/pdf" });
+    const blob = new Blob([stampedPDF], { type: 'application/pdf' });
 
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = "test";
+    link.download = 'test';
 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [])
-
+  }, []);
 
   //@ts-expect-error
-  const onDrop = useCallback(async acceptedFiles => {
-
+  const onDrop = useCallback(async (acceptedFiles) => {
     for (const file of acceptedFiles) {
       const reader = new FileReader();
 
@@ -59,26 +55,28 @@ const App = () => {
         const uri = e.target?.result as string;
 
         const srcDoc = await PDFDocument.load(uri);
-        const copiedPages = await inputPdf.current?.copyPages(srcDoc, srcDoc.getPageIndices());
+        const copiedPages = await inputPdf.current?.copyPages(
+          srcDoc,
+          srcDoc.getPageIndices(),
+        );
 
         for (const p of copiedPages || []) {
           inputPdf.current?.addPage(p);
         }
 
-        const currUri = await inputPdf.current?.saveAsBase64({ dataUri: true })
+        const currUri = await inputPdf.current?.saveAsBase64({ dataUri: true });
         setWorkingPdf(currUri);
-      }
+      };
 
-      reader.readAsDataURL(file)
+      reader.readAsDataURL(file);
     }
   }, []);
-
 
   const processFiles = useCallback(async () => {
     const correspondingAcctNumbers = [];
 
     const uri = await inputPdf.current?.saveAsBase64({ dataUri: true });
-    const bstring = atob(uri?.split(',')[1] || "");
+    const bstring = atob(uri?.split(',')[1] || '');
     const bytes = new Uint8Array(bstring.length);
     for (let i = 0; i < bstring.length; i++) {
       bytes[i] = bstring.charCodeAt(i);
@@ -89,18 +87,23 @@ const App = () => {
       const page = await doc.getPage(i + 1);
       const textContent = await page.getTextContent();
 
-      const text = textContent.items.map((item) => (item as any).str).join(" ");
-      const accountNum = Number(text.match(/(?<=ACCOUNT NUMBER) *\d+/)?.toString().trim());
+      const text = textContent.items.map((item) => (item as any).str).join(' ');
+      const accountNum = Number(
+        text
+          .match(/(?<=ACCOUNT NUMBER) *\d+/)
+          ?.toString()
+          .trim(),
+      );
 
       correspondingAcctNumbers.push(accountNum);
     }
 
-    const pdfDoc = await PDFDocument.load(uri || "");
+    const pdfDoc = await PDFDocument.load(uri || '');
     const pages = pdfDoc.getPages();
 
     for (let i = 0; i < pages.length; i++) {
-
-      const { loc, poNumber, accountCode } = accounts[correspondingAcctNumbers[i]];
+      const { loc, poNumber, accountCode } =
+        accounts[correspondingAcctNumbers[i]];
 
       const { width, height } = pages[i].getSize();
 
@@ -112,7 +115,10 @@ const App = () => {
       });
     }
 
-    const copiedPages = await outputPdf.current?.copyPages(pdfDoc, pdfDoc.getPageIndices());
+    const copiedPages = await outputPdf.current?.copyPages(
+      pdfDoc,
+      pdfDoc.getPageIndices(),
+    );
     if (!copiedPages) return;
 
     for (const p of copiedPages) {
@@ -122,28 +128,46 @@ const App = () => {
     setProcessed(true);
   }, []);
 
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop, accept: {
-      'application/pdf': ['.pdf']
-    }
-  })
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+    },
+  });
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center h-screen w-screen">
+    <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 p-6">
       <iframe className="h-4/5 w-full" src={workingPdf} />
-      <div {...getRootProps({
-        className: "border-4 rounded-lg border-gray-400 border-dashed w-4/5 h-40 text-3xl flex justfify-center items-center text-center"
-      })}>
+      <div
+        {...getRootProps({
+          className:
+            'border-4 rounded-lg border-gray-400 border-dashed w-4/5 h-40 text-3xl flex justfify-center items-center',
+        })}
+      >
         <input {...getInputProps()} />
-        {isDragActive ?
-          <p>Drop the files here...</p> :
-          <p>Drag and drop some files here, or click to select files</p>}
+        {isDragActive ? (
+          <p className="mx-auto">Drop the files here...</p>
+        ) : (
+          <p className="mx-auto">
+            Drag and drop some files here, or click to select files
+          </p>
+        )}
       </div>
-      <button disabled={!pagesPresent} className="rounded text-white bg-black hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black p-4 " onClick={processFiles}>Process</button>
-      <button disabled={!processed} className="rounded text-white bg-black hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black p-4 " onClick={onDownload}>Download Coded PDF</button>
+      <button
+        disabled={!pagesPresent}
+        className="rounded bg-black p-4 text-white hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black "
+        onClick={processFiles}
+      >
+        Process
+      </button>
+      <button
+        disabled={!processed}
+        className="rounded bg-black p-4 text-white hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black "
+        onClick={onDownload}
+      >
+        Download Coded PDF
+      </button>
     </div>
-
   );
 };
 
