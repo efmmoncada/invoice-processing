@@ -102,6 +102,8 @@ const App = () => {
     const pages = pdfDoc.getPages();
 
     for (let i = 0; i < pages.length; i++) {
+      if (!correspondingAcctNumbers[i]) continue;
+
       const { loc, poNumber, accountCode } =
         accounts[correspondingAcctNumbers[i]];
 
@@ -115,9 +117,19 @@ const App = () => {
       });
     }
 
+    const indicies = pdfDoc.getPageIndices();
+
+    const validIndicies = [];
+
+    for (let i = 0; i < correspondingAcctNumbers.length; i++) {
+      if (correspondingAcctNumbers[i]) {
+        validIndicies.push(indicies[i]);
+      }
+    }
+
     const copiedPages = await outputPdf.current?.copyPages(
       pdfDoc,
-      pdfDoc.getPageIndices(),
+      validIndicies,
     );
     if (!copiedPages) return;
 
