@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import * as pdfjs from 'pdfjs-dist';
 import { accounts } from './accounts';
 import { PDFDocument, rgb } from 'pdf-lib';
+import { Button } from '@nextui-org/react';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -165,20 +166,12 @@ const App = () => {
           </p>
         )}
       </div>
-      <button
-        disabled={!pagesPresent}
-        className="rounded bg-black p-4 text-white hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black "
-        onClick={processFiles}
-      >
-        Process
-      </button>
-      <button
-        disabled={!processed}
-        className="rounded bg-black p-4 text-white hover:bg-blue-900 disabled:opacity-30 disabled:hover:bg-black "
-        onClick={onDownload}
-      >
-        Download Coded PDF
-      </button>
+
+      <div className='flex gap-3'>
+        <Button color="default" variant='shadow' isDisabled={false} onClick={undefined}>Reset</Button>
+        <Button color="primary" variant='shadow' isDisabled={!pagesPresent} onClick={processFiles}>Process</Button>
+        <Button color="success" variant='shadow' isDisabled={!processed} onClick={onDownload}>Download Coded PDF</Button>
+      </div>
     </div>
   );
 };
