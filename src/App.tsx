@@ -73,6 +73,16 @@ const App = () => {
     }
   }, []);
 
+  const reset = useCallback(async () => {
+    delete inputPdf.current;
+    inputPdf.current = await PDFDocument.create();
+    delete outputPdf.current;
+    outputPdf.current = await PDFDocument.create();
+
+    setProcessed(false);
+    setPagesPresent(false);
+  }, []);
+
   const processFiles = useCallback(async () => {
     const correspondingAcctNumbers = [];
 
@@ -89,12 +99,17 @@ const App = () => {
       const textContent = await page.getTextContent();
 
       const text = textContent.items.map((item) => (item as any).str).join(' ');
-      const accountNum = Number(
+      let accountNum = Number(
         text
           .match(/(?<=ACCOUNT NUMBER) *\d+/)
           ?.toString()
           .trim(),
       );
+
+      if (!accountNum) {
+        const accountNumbersRegex = new RegExp(Object.keys(accounts).map(k => k.toString()).join('|'));
+        accountNum = Number(text.match(accountNumbersRegex)?.toString().trim());
+      }
 
       correspondingAcctNumbers.push(accountNum);
     }
@@ -168,7 +183,7 @@ const App = () => {
       </div>
 
       <div className='flex gap-3'>
-        <Button color="default" variant='shadow' isDisabled={false} onClick={undefined}>Reset</Button>
+        <Button color="default" variant='shadow' isDisabled={!processed && pagesPresent} onClick={reset}>Reset</Button>
         <Button color="primary" variant='shadow' isDisabled={!pagesPresent} onClick={processFiles}>Process</Button>
         <Button color="success" variant='shadow' isDisabled={!processed} onClick={onDownload}>Download Coded PDF</Button>
       </div>
