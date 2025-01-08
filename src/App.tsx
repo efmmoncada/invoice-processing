@@ -157,15 +157,14 @@ const App = () => {
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-    },
+    onDrop
   });
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 p-6">
-      <iframe className="h-4/5 w-full" src={workingPdf} />
+      <iframe style={{
+        WebkitTransform: "scale(1)"
+      }} className="h-4/5 w-full" src={workingPdf} />
       <div
         {...getRootProps({
           className:
