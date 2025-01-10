@@ -291,7 +291,7 @@ const App = () => {
         <Button color="success" variant='shadow' isDisabled={!processed} onClick={onDownload}>Download Coded PDF</Button>
       </div>
 
-      <Modal isOpen={isOpen} hideCloseButton size='3xl'>
+      <Modal isOpen={isOpen} hideCloseButton size='5xl'>
         <ModalContent>
           {() => (<>
             <ModalHeader>No Account Info Found - Please enter</ModalHeader>
@@ -310,15 +310,15 @@ const App = () => {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={isOpen2} hideCloseButton size='3xl'>
+      <Modal isOpen={isOpen2} hideCloseButton className='h-screen' size='5xl'>
         <ModalContent>
           {() => (<>
             <ModalHeader>
               Ambiguous Account Number Detected
             </ModalHeader>
             <ModalBody className='flex flex-row items-center'>
-              <span className='flex-1 h-72'>
-                {pagePreviewURI && <iframe className="w-full h-72" src={pagePreviewURI}></iframe>}
+              <span className='flex-1 h-full'>
+                {pagePreviewURI && <iframe className="w-full h-full" src={pagePreviewURI}></iframe>}
               </span>
             </ModalBody>
             <ModalFooter>
