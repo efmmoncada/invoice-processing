@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import * as pdfjs from 'pdfjs-dist';
 import { accounts } from './accounts';
 import { PDFDocument, rgb } from 'pdf-lib';
-import { Button, Input, Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -22,8 +22,10 @@ const App = () => {
   const [po, setPo] = useState("");
   const [accountCode, setAccountCode] = useState("");
   const [manualPageIndex, setManualPageIndex] = useState<number | null>(null); // Track which page needs manual input
+  const [ambiguousPageIndex, setAmbiguousPageIndex] = useState<number | null>(null); // Track which page needs manual input
 
   const { onOpen, isOpen, onClose } = useDisclosure();
+  const { onOpen: onOpen2, isOpen: isOpen2, onClose: onClose2 } = useDisclosure()
 
   // @ts-expect-error
   const onDrop = useCallback(async (acceptedFiles) => {
@@ -102,6 +104,10 @@ const App = () => {
 
       if (!accountNum) {
 
+      } else if (accountNum === 542494) {
+        setAmbiguousPageIndex(i);
+        return;
+
       } else if (!accounts[accountNum]) {
         setManualPageIndex(i);
         return;
@@ -136,10 +142,13 @@ const App = () => {
   }
 
   const renderPage = useCallback(async () => {
-    if (!inputPdf.current || manualPageIndex === null) return;
+    if (!inputPdf.current) return;
+    if (manualPageIndex === null && ambiguousPageIndex === null) return;
+
+    let idk = manualPageIndex ?? ambiguousPageIndex;
 
     const previewPDF = await PDFDocument.create();
-    const [previewPage] = await previewPDF.copyPages(inputPdf.current, [manualPageIndex]);
+    const [previewPage] = await previewPDF.copyPages(inputPdf.current, [idk!]);
 
     previewPDF.addPage(previewPage);
 
@@ -147,7 +156,7 @@ const App = () => {
     setPagePreviewURI(uri);
 
 
-  }, [manualPageIndex]);
+  }, [manualPageIndex, ambiguousPageIndex]);
 
   const processFiles = useCallback(async () => {
     await populateMarkupMap();
@@ -160,6 +169,7 @@ const App = () => {
 
     setProcessed(false);
     setPagesPresent(false);
+    setWorkingPdf(undefined);
   }, []);
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,6 +196,24 @@ const App = () => {
     }
   };
 
+  const handleGeneralSubmit = () => {
+    if (ambiguousPageIndex !== null) {
+      setPageMarkupMap((map) => ({ ...map, [ambiguousPageIndex]: { location: "Facilites", poNumber: "?", accountCode: "100.2540.0412.006.000.000" } }))
+      let idx = ambiguousPageIndex + 1;
+      setAmbiguousPageIndex(null);
+      populateMarkupMap(idx);
+    }
+  };
+
+  const handleGrantSubmit = () => {
+    if (ambiguousPageIndex !== null) {
+      setPageMarkupMap((map) => ({ ...map, [ambiguousPageIndex]: { location: "Facilities", poNumber: "24001883", accountCode: "254.2540.0410.006.094.490\n254.2540.0410.006.095.490" } }))
+      let idx = ambiguousPageIndex + 1;
+      setAmbiguousPageIndex(null);
+      populateMarkupMap(idx);
+    }
+  }
+
 
   // useEffect(() => {
   //   if (manualPageIndex !== null) {
@@ -194,10 +222,10 @@ const App = () => {
   // }, [manualPageIndex, renderPage]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen || isOpen2) {
       renderPage();
     }
-  }, [isOpen, renderPage]);
+  }, [isOpen, isOpen2, renderPage]);
 
   useEffect(() => {
     (async () => {
@@ -217,6 +245,11 @@ const App = () => {
   useEffect(() => {
     if (manualPageIndex !== null) onOpen();
   }, [manualPageIndex])
+
+  useEffect(() => {
+    if (ambiguousPageIndex !== null) onOpen2();
+    else onClose2();
+  }, [ambiguousPageIndex]);
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 p-6">
@@ -239,6 +272,12 @@ const App = () => {
         )}
       </div>
 
+      <div className='flex gap-3'>
+        <Button color="default" variant='shadow' isDisabled={!processed && pagesPresent} onClick={reset}>Reset</Button>
+        <Button color="primary" variant='shadow' isDisabled={!pagesPresent} onClick={() => processFiles()}>Process</Button>
+        <Button color="success" variant='shadow' isDisabled={!processed} onClick={onDownload}>Download Coded PDF</Button>
+      </div>
+
       <Modal isOpen={isOpen} hideCloseButton size='3xl'>
         <ModalContent>
           {() => (<>
@@ -255,15 +294,30 @@ const App = () => {
               </span>
             </ModalBody>
           </>)}
-
         </ModalContent>
       </Modal>
 
-      <div className='flex gap-3'>
-        <Button color="default" variant='shadow' isDisabled={!processed && pagesPresent} onClick={reset}>Reset</Button>
-        <Button color="primary" variant='shadow' isDisabled={!pagesPresent} onClick={() => processFiles()}>Process</Button>
-        <Button color="success" variant='shadow' isDisabled={!processed} onClick={onDownload}>Download Coded PDF</Button>
-      </div>
+      <Modal isOpen={isOpen2} hideCloseButton size='3xl'>
+        <ModalContent>
+          {() => (<>
+            <ModalHeader>
+              Ambiguous Account Number Detected
+            </ModalHeader>
+            <ModalBody className='flex flex-row items-center'>
+              <span className='flex-1 h-72'>
+                {pagePreviewURI && <iframe className="w-full h-72" src={pagePreviewURI}></iframe>}
+              </span>
+            </ModalBody>
+            <ModalFooter>
+              <p>This page is for the Facilites account code. Should this be coded under the general custodial budget, or the grant?</p>
+              <p className='text-small'>This page is for the Facilites account code. Should this be coded under the general custodial budget, or the grant?</p>
+
+              <Button color='primary' onClick={handleGeneralSubmit}>General Custodial</Button>
+              <Button color='primary' onClick={handleGrantSubmit}>Grant</Button>
+            </ModalFooter>
+          </>)}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
