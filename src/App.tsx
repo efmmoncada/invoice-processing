@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import * as pdfjs from 'pdfjs-dist';
-import { accounts } from './accounts';
+import { accounts, ambiguousOptions } from './accounts';
 import { PDFDocument, rgb } from 'pdf-lib';
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, SharedSelection, useDisclosure } from '@nextui-org/react';
 import { InfoBar } from './InfoBar';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -27,6 +27,7 @@ const App = () => {
   const [totalFilesUploaded, setTotalFilesUploaded] = useState(0);
   const [totalPagesToProcess, setTotalPagesToProcess] = useState(0);
   const [totalPagesProcessed, setTotalPagesProcessed] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<string>("");
 
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { onOpen: onOpen2, isOpen: isOpen2, onClose: onClose2 } = useDisclosure()
@@ -119,8 +120,8 @@ const App = () => {
         return;
 
       } else {
-        const { loc, poNumber, accountCode } = accounts[accountNum];
-        setPageMarkupMap((map) => ({ ...map, [i]: { location: loc, poNumber, accountCode } }))
+        const { location, poNumber, accountCode } = accounts[accountNum];
+        setPageMarkupMap((map) => ({ ...map, [i]: { location, poNumber, accountCode } }))
       }
     }
   }
@@ -192,6 +193,10 @@ const App = () => {
     setAccountCode(e.target.value);
   };
 
+  const handleSelectionChange = (keys: SharedSelection) => {
+    setSelectedOption(keys.currentKey!);
+  };
+
   const handleManualTextSubmit = () => {
     if (manualPageIndex !== null) {
 
@@ -206,23 +211,14 @@ const App = () => {
     }
   };
 
-  const handleGeneralSubmit = () => {
+  const handleAmbiguousSubmit = () => {
     if (ambiguousPageIndex !== null) {
-      setPageMarkupMap((map) => ({ ...map, [ambiguousPageIndex]: { location: "Facilites", poNumber: "24000826", accountCode: "100.2540.0412.006.000.000" } }))
+      setPageMarkupMap((map) => ({ ...map, [ambiguousPageIndex]: ambiguousOptions.find((option) => option.key === selectedOption)?.data! }));
       let idx = ambiguousPageIndex + 1;
       setAmbiguousPageIndex(null);
       populateMarkupMap(idx);
     }
   };
-
-  const handleGrantSubmit = () => {
-    if (ambiguousPageIndex !== null) {
-      setPageMarkupMap((map) => ({ ...map, [ambiguousPageIndex]: { location: "Facilities", poNumber: "24001883", accountCode: "254.2540.0410.006.094.490\n254.2540.0410.006.095.490" } }))
-      let idx = ambiguousPageIndex + 1;
-      setAmbiguousPageIndex(null);
-      populateMarkupMap(idx);
-    }
-  }
 
 
   // useEffect(() => {
@@ -324,13 +320,15 @@ const App = () => {
             <ModalFooter>
               <p className='text-small'>This page is for the Facilites account code. Should this be coded under the general custodial budget, or the grant?</p>
 
-              <Button color='primary' onClick={handleGeneralSubmit}>General Custodial</Button>
-              <Button color='primary' onClick={handleGrantSubmit}>Grant</Button>
+              <Select items={ambiguousOptions} placeholder='Select an stamp option' selectedKeys={[selectedOption]} onSelectionChange={handleSelectionChange}>
+                {(option) => <SelectItem key={option.key}>{option.label}</SelectItem>}
+              </Select>
+              <Button color='primary' onClick={handleAmbiguousSubmit}>Submit</Button>
             </ModalFooter>
           </>)}
         </ModalContent>
       </Modal>
-    </div>
+    </div >
   );
 };
 
