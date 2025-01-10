@@ -309,7 +309,6 @@ const App = () => {
               </span>
             </ModalBody>
             <ModalFooter>
-              <p>This page is for the Facilites account code. Should this be coded under the general custodial budget, or the grant?</p>
               <p className='text-small'>This page is for the Facilites account code. Should this be coded under the general custodial budget, or the grant?</p>
 
               <Button color='primary' onClick={handleGeneralSubmit}>General Custodial</Button>
