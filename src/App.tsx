@@ -4,6 +4,7 @@ import * as pdfjs from 'pdfjs-dist';
 import { accounts } from './accounts';
 import { PDFDocument, rgb } from 'pdf-lib';
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/react';
+import { InfoBar } from './InfoBar';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -23,6 +24,9 @@ const App = () => {
   const [accountCode, setAccountCode] = useState("");
   const [manualPageIndex, setManualPageIndex] = useState<number | null>(null); // Track which page needs manual input
   const [ambiguousPageIndex, setAmbiguousPageIndex] = useState<number | null>(null); // Track which page needs manual input
+  const [totalFilesUploaded, setTotalFilesUploaded] = useState(0);
+  const [totalPagesToProcess, setTotalPagesToProcess] = useState(0);
+  const [totalPagesProcessed, setTotalPagesProcessed] = useState(0);
 
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { onOpen: onOpen2, isOpen: isOpen2, onClose: onClose2 } = useDisclosure()
@@ -38,6 +42,7 @@ const App = () => {
         const uri = e.target?.result as string;
 
         const srcDoc = await PDFDocument.load(uri);
+        setTotalPagesToProcess((prev) => prev + srcDoc.getPageCount());
         const copiedPages = await inputPdf.current?.copyPages(
           srcDoc,
           srcDoc.getPageIndices(),
@@ -49,6 +54,7 @@ const App = () => {
 
         const currUri = await inputPdf.current?.saveAsBase64({ dataUri: true });
         setWorkingPdf(currUri);
+        setTotalFilesUploaded((prev) => prev + 1);
       };
 
       reader.readAsDataURL(file);
@@ -137,6 +143,7 @@ const App = () => {
       });
     }
 
+    setTotalPagesProcessed(numPages);
     const result = await pdf.saveAsBase64({ dataUri: true });
     setWorkingPdf(result);
   }
@@ -169,6 +176,9 @@ const App = () => {
 
     setProcessed(false);
     setPagesPresent(false);
+    setTotalFilesUploaded(0);
+    setTotalPagesToProcess(0);
+    setTotalPagesProcessed(0);
     setWorkingPdf(undefined);
   }, []);
 
@@ -256,20 +266,23 @@ const App = () => {
       <iframe style={{
         WebkitTransform: "scale(1)"
       }} className="h-4/5 w-full" src={workingPdf} />
-      <div
-        {...getRootProps({
-          className:
-            'border-4 rounded-lg border-gray-400 border-dashed w-4/5 h-40 text-3xl flex justfify-center items-center',
-        })}
-      >
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p className="mx-auto">Drop the files here...</p>
-        ) : (
-          <p className="mx-auto">
-            Drag and drop some files here, or click to select files
-          </p>
-        )}
+      <div className='flex flex-row '>
+        <div
+          {...getRootProps({
+            className:
+              'border-4 rounded-lg border-gray-400 border-dashed w-4/5 h-40 text-3xl flex justfify-center items-center',
+          })}
+        >
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p className="mx-auto">Drop the files here...</p>
+          ) : (
+            <p className="mx-auto">
+              Drag and drop some files here, or click to select files
+            </p>
+          )}
+        </div>
+        <InfoBar totalFilesUploaded={totalFilesUploaded} totalPagesToProcess={totalPagesToProcess} totalPagesProcessed={totalPagesProcessed} />
       </div>
 
       <div className='flex gap-3'>
