@@ -208,7 +208,7 @@ const App = () => {
 
   const handleGeneralSubmit = () => {
     if (ambiguousPageIndex !== null) {
-      setPageMarkupMap((map) => ({ ...map, [ambiguousPageIndex]: { location: "Facilites", poNumber: "?", accountCode: "100.2540.0412.006.000.000" } }))
+      setPageMarkupMap((map) => ({ ...map, [ambiguousPageIndex]: { location: "Facilites", poNumber: "24000826", accountCode: "100.2540.0412.006.000.000" } }))
       let idx = ambiguousPageIndex + 1;
       setAmbiguousPageIndex(null);
       populateMarkupMap(idx);
