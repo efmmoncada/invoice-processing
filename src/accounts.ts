@@ -55,6 +55,6 @@ type AmbiguousOptios = { key: string, label: string, data: AccountInfo }[];
 export const ambiguousOptions: AmbiguousOptios = [
   { key: "general-supplies", label: "General Custodial Supplies", data: { location: "Facilites", poNumber: "24000826", accountCode: "100.2540.0412.006.000.000" } },
   { key: "in-person-orders", label: "In-Person Orders", data: { location: "Facilites", poNumber: "24000657", accountCode: "100.2540.0412.006.000.000" } },
-  { key: "grant-product", label: "Grant - Product", data: { location: "Facilites", poNumber: "24001883", accountCode: "254.2540.0410.006.095.490" } },
-  { key: "grant-dispenser", label: "Grant - Dispenser", data: { location: "Facilites", poNumber: "24001883", accountCode: "254.2540.0410.006.094.490" } },
+  { key: "grant-product", label: "Grant - Product", data: { location: "Facilites", poNumber: "24001883", accountCode: "254.2540.0410.006.094.490" } },
+  { key: "grant-dispenser", label: "Grant - Dispenser", data: { location: "Facilites", poNumber: "24001883", accountCode: "254.2540.0410.006.095.490" } },
 ]
